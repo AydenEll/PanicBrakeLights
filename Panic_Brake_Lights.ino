@@ -2,40 +2,60 @@
  * Panic Brake Lights
  * 
  * Purpose: To automatically activate strobing lights, affixed to the
- *    rear of a motorcycle, under situations of great braking force.
+ *          rear of a motorcycle, under situations of great braking force.
  *    
+ * Required Hardware: 
+ *        - Adafruit Metro Mini controller board is used
+ *        - Adafruit ADXL343 Analog Devices accelerometer breakout board
+ *        - LM2596 DC to DC buck converter to step down 12V supply from motorcycle
+ *            to 5V for Metro Mini and LED strips
+ *        - Strips of WS2812B LED modules to make up left and right side lights
+ *            - each elements can be individually addressed
+ *            - e.g. Adafruit NeoPixel strips
  * Setup:
+ *        - Metro Mini Pin 5 to 560ohm resistor then to left LED strip data pin
+ *        - Metro Mini Pin 6 to 560ohm resistor then to right LED strip data pin
+ *        - Metro Mini Pin A5 (SCL) to ADXL343 clock pin
+ *        - Metro Mini Pin A4 (SDA) to ADXL343 data pin
+ *        - Metro Mini +5V out to Vin on ADXL343
+ *        - Metro Mini GND to GND on ADXL343
+ *        - +5V supply to Metro Mini Vin and +5V on left and right LED strip
+ *        - GND from power supply to GND on Metro Mini and left and right LED strip
+ *        - 1000uF 6.3V capacitor branching +5V and GND for each LED strip
+ *        
+ * Adafruit NeoPixel best practices per Adafruit Website
+ * https://learn.adafruit.com/adafruit-neopixel-uberguide/best-practices
+ *  - Add 1000 uF 6.3V CAPACITOR between NeoPixel strip's + and - connections.
+ *  - MINIMIZE WIRING LENGTH between microcontroller board and first pixel.
+ *  - NeoPixel strip's DATA-IN should pass through a 300-500 OHM RESISTOR.
+ *  - AVOID connecting NeoPixels on a LIVE CIRCUIT. If you must, ALWAYS
+ *      connect GROUND (-) first, then +5V, then data.
+ *  - If your microcontroller and NeoPixels are powered from two different 
+ *      sources, there must be a ground connection between the two.
  * 
- * Created  November  8, 2019
- * Modified November 17, 2019
- * Modified November 23, 2019
+ * Created  November  8, 2019 (basic NeoPixel functionality tested)
+ * Modified November 17, 2019 (NeoPixel refinements)
+ * Modified November 23, 2019 (incorporated accelerometer code)
+ * Modified November 30, 2019 (first setup on actual hardware and more refinements)
  * 
  * By Ayden Ell
  * 
  */
 
-// Adafruit NeoPixel best practices (for most reliable operation):
-// - Add 1000 uF 6.3V CAPACITOR between NeoPixel strip's + and - connections.
-// - MINIMIZE WIRING LENGTH between microcontroller board and first pixel.
-// - NeoPixel strip's DATA-IN should pass through a 300-500 OHM RESISTOR.
-// - AVOID connecting NeoPixels on a LIVE CIRCUIT. If you must, ALWAYS
-//     connect GROUND (-) first, then +, then data.
-// - If your microcontroller and NeoPixels are powered from two different 
-//     sources, there must be a ground connection between the two.
-
+// Import libraries for LEDs, sensor, and serial communication
 #include <Adafruit_NeoPixel.h>  // to control LED strips
 #include <Wire.h>               // to use serial communication
 #include <Adafruit_Sensor.h>    // for generic Adafruit sensor functionality
 #include <Adafruit_ADXL343.h>   // for Adafruit ADXL343 accelerometer functionality
 
 // Constants to reference LED strips
-const int LEDL_PIN = 5;
-const int LEDR_PIN = 6;
-const int LEDL_COUNT = 3;
-const int LEDR_COUNT = 3;
+const int LEDL_PIN = 5;   // Left LED strip pin
+const int LEDR_PIN = 6;   // Right LED strip pin
+const int LEDL_COUNT = 24; // Left LED count
+const int LEDR_COUNT = 24; // Right LED count
 
 // Other constants
-const float THRESHOLD = -3;
+const float THRESHOLD = -3.0; // Accelerometer threshold to trigger strobing effect
 const int BRIGHTNESS = 127;   // LED strip brightness (range 0 - 255)
 const int SHORT_BLINK = 50;   // duration for the LED strip OFF cycle
 const int LONG_BLINK = 200;   // duration for the LED strip ON cycle
@@ -45,13 +65,7 @@ const int ELEMENT_DELAY = 1;  // default delay between LED strip elements activa
 const int DELAY = 10;         // default loop delay
 
 // 32-bit (HEX) colours (to be used by NeoPixel elements)
-const uint32_t BLACK = 0x000000;
 const uint32_t RED = 0xFF0000;
-const uint32_t GREEN = 0x00FF00;
-const uint32_t BLUE = 0x0000FF;
-const uint32_t WHITE = 0xFFFFFF;
-const uint32_t FUCHSIA = 0xFF00FF;
-const uint32_t AQUA = 0x00FFFF;
 const uint32_t YELLOW = 0xFFFF00;
 
 // Declare NeoPixel objects
@@ -86,28 +100,23 @@ void setup()
 
 void loop() 
 {
-  
-  accel.getEvent(&event);       // get sensor event
-  float X = event.acceleration.x; // get new X acceleration
-  float Y = event.acceleration.y; // get new Y acceleration
-  float Z = event.acceleration.z; // get new Z acceleration
+  // Get new accelerometer sensor event and acceleration for each axis
+  accel.getEvent(&event);
+  float X = event.acceleration.x;
+  float Y = event.acceleration.y;
+  float Z = event.acceleration.z;
 
+  // Print to serial console for thresholding and debugging
   Serial.print("X: "); Serial.print(event.acceleration.x); Serial.print("  ");
   Serial.print("Y: "); Serial.print(event.acceleration.y); Serial.print("  ");
-  Serial.print("Z: "); Serial.print(event.acceleration.z); Serial.print("  ");Serial.println("m/s^2 ");
-  delay(100);
+  Serial.print("Z: "); Serial.print(event.acceleration.z); Serial.print("  ");
+  Serial.println("m/s^2 ");
+  delay(DELAY);
 
+  // If negative X acceleration is less than the threshold, activate strobing lights
   if(X <= THRESHOLD)
     for (int i = 0; i < CYCLES; i++)
       Strobe(stripL, stripR, RED);
-  
-  //Wipe(stripL,RED,10);
-  //colorWipe(RED,100);
-  //delay(100);
-  //stripL.clear();
-  //stripL.show();
-  //delay(50);
-  //brightnessTest(stripL, RED);
 }
 
 void brightnessTest(Adafruit_NeoPixel & strip, uint32_t colour)
