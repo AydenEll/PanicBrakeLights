@@ -1,8 +1,8 @@
 /*
  * Panic Brake Lights
  * 
- * Purpose: To automatically activate strobing lights, affixed to the
- *          rear of a motorcycle, under situations of great braking force.
+ * Purpose: To automatically activate strobing lights, affixed to the rear of a
+ *          motorcycle, under situations of greater than normal braking force.
  *    
  * Required Hardware: 
  *        - Adafruit Metro Mini controller board is used
@@ -20,23 +20,13 @@
  *        - Metro Mini +5V out to Vin on ADXL343
  *        - Metro Mini GND to GND on ADXL343
  *        - +5V supply to Metro Mini Vin and +5V on left and right LED strip
- *        - GND from power supply to GND on Metro Mini and left and right LED strip
- *        - 1000uF 6.3V capacitor branching +5V and GND for each LED strip
- *        
- * Adafruit NeoPixel best practices per Adafruit Website
- * https://learn.adafruit.com/adafruit-neopixel-uberguide/best-practices
- *  - Add 1000 uF 6.3V CAPACITOR between NeoPixel strip's + and - connections.
- *  - MINIMIZE WIRING LENGTH between microcontroller board and first pixel.
- *  - NeoPixel strip's DATA-IN should pass through a 300-500 OHM RESISTOR.
- *  - AVOID connecting NeoPixels on a LIVE CIRCUIT. If you must, ALWAYS
- *      connect GROUND (-) first, then +5V, then data.
- *  - If your microcontroller and NeoPixels are powered from two different 
- *      sources, there must be a ground connection between the two.
+ *        - GND from power supply shared to GND on Metro Mini and each LED strip
  * 
  * Created  November  8, 2019 (basic NeoPixel functionality tested)
  * Modified November 17, 2019 (NeoPixel refinements)
  * Modified November 23, 2019 (incorporated accelerometer code)
  * Modified November 30, 2019 (first setup on actual hardware and more refinements)
+ * Modified December  4, 2019 (updated Strobe function constants; removed Wipe function)
  * 
  * By Ayden Ell
  * 
@@ -55,18 +45,18 @@ const int LEDL_COUNT = 24; // Left LED count
 const int LEDR_COUNT = 24; // Right LED count
 
 // Other constants
+//*** Proper threshold still needs to be determined for accelerometer X axis ***//
 const float THRESHOLD = -3.0; // Accelerometer threshold to trigger strobing effect
+const uint32_t RED = 0xFF0000; // HEX colour red to be used by NeoPixel elements
 const int BRIGHTNESS = 127;   // LED strip brightness (range 0 - 255)
-const int SHORT_BLINK = 50;   // duration for the LED strip OFF cycle
-const int LONG_BLINK = 200;   // duration for the LED strip ON cycle
-const int CYCLES = 50;        // number of strobe cycles on triggered event
-const int EXTRA_TIME = 5000;  // duration to continue strobing after braking ceases
-const int ELEMENT_DELAY = 1;  // default delay between LED strip elements activating
 const int DELAY = 10;         // default loop delay
-
-// 32-bit (HEX) colours (to be used by NeoPixel elements)
-const uint32_t RED = 0xFF0000;
-const uint32_t YELLOW = 0xFFFF00;
+const int CYCLES = 50;        // number of strobe cycles on triggered event
+const int SHORT_BLINK = 50;   // duration for the LED strip OFF cycle
+const int LONG_BLINK = 202;   // duration for the LED strip ON cycle
+const int ELEMENT_DELAY = 2;  // default delay between LED strip elements activating
+// Note: LONG_BLINK + (24 * ELEMENT_DELAY) should total 250ms
+//       e.g. if ELEMENT_DELAY == 1, then LONG_BLINK = 226
+//            else if ELEMENT_DELAY == 2, then LONG_BLINK = 202
 
 // Declare NeoPixel objects
 Adafruit_NeoPixel stripL(LEDL_COUNT, LEDL_PIN); // outer left strip
@@ -81,10 +71,7 @@ void setup()
   Serial.begin(9600);
   accel.begin();
 
-  // Set accelerometer range to 
-  // accel.setRange(ADXL343_RANGE_16_G);
-  // accel.setRange(ADXL343_RANGE_8_G);
-  // accel.setRange(ADXL343_RANGE_4_G);
+  // Set accelerometer range to +- 2G
   accel.setRange(ADXL343_RANGE_2_G);
   
   // Left outer strip setup
@@ -138,34 +125,16 @@ void brightnessTest(Adafruit_NeoPixel & strip, uint32_t colour)
   }
 }
 
-/*  Wipe
- *  Purpose:  To sequentially fill a LED strip one element at a time with a delay.
- *  Parameters:
- *    <1> strip - the strip object to fill, passed by reference
- *    <2> colour - the hex colour with which to fill the strip
- *    <3> wait - the wait time between elements (in milliseconds)
- *  Returns: void
- */
-void Wipe(Adafruit_NeoPixel & strip, uint32_t colour, int wait)
-{
-  for(int i = 0; i < strip.numPixels(); i++)
-  {
-    strip.setPixelColor(i, colour);
-    strip.show();
-    delay(wait);
-  }
-}
-
 /*  Strobe
- *  Purpose: To strobe both left and right LED strips.
+ *  Purpose: To strobe both left and right LED strips; total time per cycle is 500ms.
  *  Parameters:
  *    <1> strip1 - the first strip object to fill, passed by reference
  *    <2> strip2 - the second strip object to fill, passed by reference
  *  Returns: void
  */
 void Strobe(Adafruit_NeoPixel & strip1, Adafruit_NeoPixel & strip2, uint32_t colour)
-{
-  // Fill both strips with given colour
+{  
+  // Fill both strips with given colour with small delay (looks animated)
   for(int i = 0; i < strip1.numPixels(); i++)
   {
     strip1.setPixelColor(i, colour);
@@ -182,4 +151,25 @@ void Strobe(Adafruit_NeoPixel & strip1, Adafruit_NeoPixel & strip2, uint32_t col
   strip2.clear();
   strip2.show();
   delay(SHORT_BLINK);
+
+  // Quickly flash the lights twice (kind of a "chirping" effect)
+  for (int i = 0; i < 2; i++)
+  {
+    // Fill both strips with given colour without delay between elements
+    for(int j = 0; i < strip1.numPixels(); i++)
+    {
+      strip1.setPixelColor(i, colour);
+      strip1.show();
+      strip2.setPixelColor(i, colour);
+      strip2.show();
+    }
+    delay(SHORT_BLINK);
+
+    // Clear both strips for short duration
+    strip1.clear();
+    strip1.show();
+    strip2.clear();
+    strip2.show();
+    delay(SHORT_BLINK);
+  }
 }
