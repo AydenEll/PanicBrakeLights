@@ -1,15 +1,11 @@
 # PanicBrakeLights [Version 1.0]
-=========================
 A module to add automatic strobing panic (emergency) brake lights to a motorcycle for better visibility while stopping under unusual circumstances.
 
-![alt text][pic1]
-[pic1]: ./img/finalinstall.jpg "Finished product as installed on the motorcycle."
 
 **Repository Contents**
 =========================
 * **/img** - Image files for the README file
-* **/hardware** - Circuit design
-* **/libraries** - Libraries used in the code
+* **/hardware** - Circuit design information
 * **/src** - Project code (*.ino file for Arduino)
 * **/LICENSE** - The user license file (open)
 * **/README.md** - Project guide (this document)
@@ -18,11 +14,10 @@ A module to add automatic strobing panic (emergency) brake lights to a motorcycl
 =========================
 
 **Libraries required:**
-* **Adafruit_NeoPixel.h** - to control LED strips
-* **Wire.h** - for serial communication
-* **Adafruit_Sensor.h** - for generic Adafruit sensor functionality
-* **Adafruit_ADXL343.h** - for Adafruit ADXL343 accelerometer functionality
-* **EEPROM.h** - for storing accelerometer data for thresholding
+* **Adafruit_ADXL343** - [Adafruit ADXL343 Accelerometer Driver](https://github.com/adafruit/Adafruit_ADXL343)
+* **Adafruit_Sensor** - [Adafruit Unified Sensor Driver](https://github.com/adafruit/Adafruit_Sensor#adafruit-unified-sensor-driver)
+* **Adafruit_NeoPixel** - [Adafruit NeoPixel Library](https://github.com/adafruit/Adafruit_NeoPixel)
+
 
 **Materials required:**
 * Arduino-based microcontroller: Adafruit Metro Mini is used in my implementation (Product ID 2590)
@@ -37,15 +32,16 @@ A module to add automatic strobing panic (emergency) brake lights to a motorcycl
 =========================
 Detailed directions on the build process will go here.
 
+![alt text](img/demostationary.jpg "Demo install to confirm functionality before finishing touches.")
 
 **Usage**
 =========================
 Once the hardware is assembled, perform the following operations to get it up and running:
 
 * Install the Arduino IDE to program the Arduino-based microcontroller
-* Install the requisite libraries listed in the /libraries folder
+* Install the requisite libraries mentioned above under **Requirements and Materials**
 * Install the code listed in /src to the Arduino-based microcontroller
-* Threshold the accelerometer to a level suitable for your needs
+* Threshold the accelerometer to a level suitable for your needs using the helper functions provided (record deceleration values under various braking conditions and then choose a value as the THRESHOLD)
 
 
 Credits
