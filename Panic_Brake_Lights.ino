@@ -27,6 +27,7 @@
  * Modified November 23, 2019 (incorporated accelerometer code)
  * Modified November 30, 2019 (first setup on actual hardware and more refinements)
  * Modified December  4, 2019 (updated Strobe function constants; removed Wipe function)
+ * Modified December  5, 2019 (helper functions for thresholding; removed BrightnessTest function)
  * 
  * By Ayden Ell
  * 
@@ -37,6 +38,7 @@
 #include <Wire.h>               // to use serial communication
 #include <Adafruit_Sensor.h>    // for generic Adafruit sensor functionality
 #include <Adafruit_ADXL343.h>   // for Adafruit ADXL343 accelerometer functionality
+#include <EEPROM.h>             // for storing accelerometer data for thresholding
 
 // Constants to reference LED strips
 const int LEDL_PIN = 5;   // Left LED strip pin
@@ -46,17 +48,21 @@ const int LEDR_COUNT = 24; // Right LED count
 
 // Other constants
 //*** Proper threshold still needs to be determined for accelerometer X axis ***//
-const float THRESHOLD = -3.0; // Accelerometer threshold to trigger strobing effect
+const double THRESHOLD = -3.0; // Accelerometer threshold to trigger strobing effect
 const uint32_t RED = 0xFF0000; // HEX colour red to be used by NeoPixel elements
 const int BRIGHTNESS = 127;   // LED strip brightness (range 0 - 255)
 const int DELAY = 10;         // default loop delay
-const int CYCLES = 50;        // number of strobe cycles on triggered event
+const int CYCLES = 20;        // number of strobe cycles on triggered event (500ms each)
 const int SHORT_BLINK = 50;   // duration for the LED strip OFF cycle
 const int LONG_BLINK = 202;   // duration for the LED strip ON cycle
 const int ELEMENT_DELAY = 2;  // default delay between LED strip elements activating
 // Note: LONG_BLINK + (24 * ELEMENT_DELAY) should total 250ms
 //       e.g. if ELEMENT_DELAY == 1, then LONG_BLINK = 226
 //            else if ELEMENT_DELAY == 2, then LONG_BLINK = 202
+
+// Global variable to store EEPROM memory location "pointer"
+//  to aid in thresholding (used by helper functions)
+int memoryLocation = 2;
 
 // Declare NeoPixel objects
 Adafruit_NeoPixel stripL(LEDL_COUNT, LEDL_PIN); // outer left strip
@@ -83,46 +89,90 @@ void setup()
   stripR.begin();                   // Initialize NeoPixel strip object
   stripR.show();                    // Initialize to "off" (showing black)
   stripR.setBrightness(BRIGHTNESS); // Set strip brightness (max 255)
+
+  // Read memory location (stored at 0) from EEPROM and save in MEMORY_LOCATION
+  EEPROM.get(0, memoryLocation);
 }
 
 void loop() 
 {
   // Get new accelerometer sensor event and acceleration for each axis
   accel.getEvent(&event);
-  float X = event.acceleration.x;
-  float Y = event.acceleration.y;
-  float Z = event.acceleration.z;
+  double X = event.acceleration.x;
+  double Y = event.acceleration.y;
+  double Z = event.acceleration.z;
 
-  // Print to serial console for thresholding and debugging
-  Serial.print("X: "); Serial.print(event.acceleration.x); Serial.print("  ");
-  Serial.print("Y: "); Serial.print(event.acceleration.y); Serial.print("  ");
-  Serial.print("Z: "); Serial.print(event.acceleration.z); Serial.print("  ");
-  Serial.println("m/s^2 ");
-  delay(DELAY);
+  // Three useful helper functions to debug and threshold the accelerometer
+  //  can be enabled and disabled as necessary (turn all off in final build)
+  //PrintAcceleration(X, Y, Z);
+  StoreAcceleration(X);
+  //PrintEEPROM();
 
-  // If negative X acceleration is less than the threshold, activate strobing lights
+  // If negative X acceleration is less than the threshold (breaking hard),
+  //  activate strobing lights (each strobe cycle takes 500ms)
   if(X <= THRESHOLD)
     for (int i = 0; i < CYCLES; i++)
       Strobe(stripL, stripR, RED);
+
+  delay(DELAY*25); //temporarily increased to 250ms for thresholding
 }
 
-void brightnessTest(Adafruit_NeoPixel & strip, uint32_t colour)
+/*  PrintAcceleration
+ *  Purpose: Print accelerometer data to serial console 
+ *    for thresholding and debugging
+ *  Parameters:
+ *    <1> x - the X-axis acceleration
+ *    <2> x - the Y-axis acceleration
+ *    <3> x - the Z-axis acceleration
+ *  Returns: void
+ */
+void PrintAcceleration(double x, double y, double z)
 {
-  for(int i = 0; i < strip.numPixels(); i++)
-    strip.setPixelColor(i, colour);
+  Serial.print("X: "); Serial.print(x);
+  Serial.print("  Y: "); Serial.print(y);
+  Serial.print("  Z: "); Serial.print(z);
+  Serial.println("  (m/s^2)");
+}
 
-  for(int i = 1; i <= 5; i++)
+/*  StoreAcceleration
+ *  Purpose: Store acceleration data into EEPROM if it is of interest 
+ *    but only stores acceleration values less than -1.0 and if EEPROM not full
+ *  Parameters:
+ *    <1> X - value to be stored
+ *  Returns: void
+ */
+void StoreAcceleration(double value)
+{
+  // If negative acceleration is less than -1.0, store value in memory,
+  //   increment memory location pointer, and store new pointer at address 0
+  if((value < -1.0) && (memoryLocation < 1000)) // 1024 bytes of EEPROM
   {
-    strip.setBrightness(i * 50);
-    strip.show();
-    delay(500);
+    EEPROM.put(memoryLocation, value); // store "value" at memoryLocation
+    memoryLocation += 8; // increment location by 8 bytes (for double)
+    EEPROM.put(0, memoryLocation); // store new memory location at 0
   }
-  for(int i = 4; i > 1; i--)
+}
+
+/*  PrintEEPROM
+ *  Purpose: Prints contents of EEPROM and resets memory pointer back to beginning (2)
+ *  Parameters: n/a
+ *  Returns: void
+ */
+void PrintEEPROM()
+{
+  // Print accelerometer data to the serial console
+  for(int i = 2; i <= memoryLocation - 8; i += 8)
   {
-    strip.setBrightness(i * 50);
-    strip.show();
-    delay(500);
+    float temp;
+    EEPROM.get(i, temp);
+    Serial.print("X: ");
+    Serial.print(temp);
+    Serial.print("m/s^2 at location ");
+    Serial.println(i);
   }
+  // Reset memory location back to the start of the EEPROM
+  memoryLocation = 2;
+  EEPROM.put(0, memoryLocation);
 }
 
 /*  Strobe
