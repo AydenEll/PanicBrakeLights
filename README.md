@@ -38,17 +38,14 @@ The main circuit assembly is quite straightforward.  Using a small breadboard as
 
 You may be required to assemble the accelerometer and microcontroller by attaching the headers.  If so, insert the headers into a breadboard and set the device on the pins.  Then, solder each pin by heating the pin and solder pad on the board at the same time, then touching the solder to the pin and tip of the iron.  The result should look shiny and slightly concave and cover the hole entirely.  If the solder sticks out or forms ball-like structures, it has not properly bonded to the solder pad on the circuit board.  This is called a cold solder joint and it means that the joint is much weaker and will not conduct as well.  Re-heat the solder and hold the tip of the iron firmly to the pad on the board.  After a few seconds, the solder should flow properly and bond with the pad, resulting in a good connection.
 
-![alt text](img/boardshalfdone.jpg "One board finished, one to go")
-![alt text](img/solderingheaders.png "Wiring Schematic")
+![alt text](img/boardshalfdone.jpg "One board finished, one to go") ![alt text](img/solderingheaders.png "Wiring Schematic")
 
 I was fortunate that my motorcycle had a large "blank canvas" in the form of the panniers, so I was able to play with the design of the LED strips and form them into arrows pointing to either side of the motorcycle.  I am aware that many motorcycles will not allow such luxuries, so you will need to adapt the strip design to your needs.  It is possible to cut the strips to any number of pixels in length, but it is important to ensure that any joints are weatherproofed with shrink tubing.  
 
 Following, you can see the process of preparing a strip for connections, tinning the contacts, attaching wire leads, and weatherproofing with shrink tube.
 
-![alt text](img/strip2.jpg "Unprepared strip end")
-![alt text](img/strip2.jpg "Prepared strip end")
-![alt text](img/solderingstrip2.jpg "Tinned strip contacts")
-![alt text](img/solderingstrip3.jpg "Wires attached to strip end")
+![alt text](img/strip2.jpg "Unprepared strip end") ![alt text](img/strip2.jpg "Prepared strip end")
+![alt text](img/solderingstrip2.jpg "Tinned strip contacts") ![alt text](img/solderingstrip3.jpg "Wires attached to strip end")
 ![alt text](img/wiringstriptermination.jpg "Weatherproofing connections with shrink tube")
 
 I created a custom wiring harness in order to facilitate a cleaner final install.  According to the wiring schematics above, create a wiring harness similar to the following where power is supplied to each +5v pin on the strips and the Vin pin on the Arduino and there is a shared ground between all devices.  I integrated the LED strip data lines into the power supply lines for each strip for a more streamlined package.  Again, ensure all connections are weatherproofed adequately.
