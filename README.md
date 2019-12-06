@@ -40,7 +40,7 @@ You may be required to assemble the accelerometer and microcontroller by attachi
 
 <p float="center">
   <img src="img/boardshalfdone.jpg" width="425" title="One board finished, one to go"/>
-  <img src="img/solderingheaders.png" width="475" title="Solding Metro Mini headers"/> 
+  <img src="img/solderingheaders.png" width="425" title="Solding Metro Mini headers"/> 
 </p>
 
 I was fortunate that my motorcycle had a large "blank canvas" in the form of the panniers, so I was able to play with the design of the LED strips and form them into arrows pointing to either side of the motorcycle.  I am aware that many motorcycles will not allow such luxuries, so you will need to adapt the strip design to your needs.  It is possible to cut the strips to any number of pixels in length, but it is important to ensure that any joints are weatherproofed with shrink tubing.  
@@ -48,12 +48,12 @@ I was fortunate that my motorcycle had a large "blank canvas" in the form of the
 Following, you can see the process of preparing a strip for connections, tinning the contacts, attaching wire leads, and weatherproofing with shrink tube.
 
 <p float="center">
-  <img src="img/strip2.jpg" width="450" title="Unprepared strip end"/>
-  <img src="img/strip3.jpg" width="450" title="Prepared strip end"/> 
+  <img src="img/strip2.jpg" width="425" title="Unprepared strip end"/>
+  <img src="img/strip3.jpg" width="425" title="Prepared strip end"/> 
 </p>
 <p float="center">
-  <img src="img/solderingstrip2.jpg" width="450" title="Tinned strip contacts"/>
-  <img src="img/solderingstrip3.jpg" width="450" title="Wires attached to strip end"/> 
+  <img src="img/solderingstrip2.jpg" width="425" title="Tinned strip contacts"/>
+  <img src="img/solderingstrip3.jpg" width="425" title="Wires attached to strip end"/> 
 </p>
 ![alt text](img/wiringstriptermination.jpg "Weatherproofing connections with shrink tube")
 
