@@ -55,6 +55,7 @@ Following, you can see the process of preparing a strip for connections, tinning
   <img src="img/solderingstrip2.jpg" width="425" title="Tinned strip contacts"/>
   <img src="img/solderingstrip3.jpg" width="425" title="Wires attached to strip end"/> 
 </p>
+
 ![alt text](img/wiringstriptermination.jpg "Weatherproofing connections with shrink tube")
 
 I created a custom wiring harness in order to facilitate a cleaner final install.  According to the wiring schematics above, create a wiring harness similar to the following where power is supplied to each +5v pin on the strips and the Vin pin on the Arduino and there is a shared ground between all devices.  I integrated the LED strip data lines into the power supply lines for each strip for a more streamlined package.  Again, ensure all connections are weatherproofed adequately.
