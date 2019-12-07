@@ -28,6 +28,7 @@
  * Modified November 30, 2019 (first setup on actual hardware and more refinements)
  * Modified December  4, 2019 (updated Strobe function constants; removed Wipe function)
  * Modified December  5, 2019 (helper functions for thresholding; removed BrightnessTest function)
+ * Modified December  6, 2019 (accelerometer threshold set; program complete)
  * 
  * By Ayden Ell
  * 
@@ -48,7 +49,7 @@ const int LEDR_COUNT = 24; // Right LED count
 
 // Other constants
 //*** Proper threshold still needs to be determined for accelerometer X axis ***//
-const double THRESHOLD = -3.0; // Accelerometer threshold to trigger strobing effect
+const double THRESHOLD = -5.0; // Accelerometer threshold to trigger strobing effect
 const uint32_t RED = 0xFF0000; // HEX colour red to be used by NeoPixel elements
 const int BRIGHTNESS = 127;   // LED strip brightness (range 0 - 255)
 const int DELAY = 10;         // default loop delay
@@ -99,13 +100,15 @@ void loop()
   // Get new accelerometer sensor event and acceleration for each axis
   accel.getEvent(&event);
   double X = event.acceleration.x;
-  double Y = event.acceleration.y;
-  double Z = event.acceleration.z;
+  // Unnecessary accelerometer data for X-axis pointing forward implementation
+  //  but can be used for other implementations or program/build expansion
+  // double Y = event.acceleration.y;
+  // double Z = event.acceleration.z;
 
   // Three useful helper functions to debug and threshold the accelerometer
   //  can be enabled and disabled as necessary (turn all off in final build)
   //PrintAcceleration(X, Y, Z);
-  StoreAcceleration(X);
+  //StoreAcceleration(X);
   //PrintEEPROM();
 
   // If negative X acceleration is less than the threshold (breaking hard),
@@ -114,7 +117,7 @@ void loop()
     for (int i = 0; i < CYCLES; i++)
       Strobe(stripL, stripR, RED);
 
-  delay(DELAY*25); //temporarily increased to 250ms for thresholding
+  delay(DELAY); //temporarily increase to ~250ms for thresholding
 }
 
 /*  PrintAcceleration
