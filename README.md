@@ -27,7 +27,7 @@ Requirements and Materials
 * LM2596 DC-to-DC buck converter to step 12V down to 5V (to power system off motorcycle battery)
 * Small breadboard to act as substrate and to maintain proper alignment of accelerometer
 * Assorted bulk wire, jumper wires, and shrink tube
-* Soldering station and soldering supplies including solder, flux, desolding tools/wick, and a "third hand"
+* Soldering station and soldering supplies including solder, flux, desoldering tools/wick, and a "third hand"
 
 
 Build Instructions
@@ -43,7 +43,7 @@ You may be required to assemble the accelerometer and microcontroller by attachi
   <img src="img/solderingheaders.png" width="425" title="Solding Metro Mini headers"/> 
 </p>
 
-I was fortunate that my motorcycle had a large "blank canvas" in the form of the panniers, so I was able to play with the design of the LED strips and form them into arrows pointing to either side of the motorcycle.  I am aware that many motorcycles will not allow such luxuries, so you will need to adapt the strip design to your needs.  It is possible to cut the strips to any number of pixels in length, but it is important to ensure that any joints are weatherproofed with shrink tubing.  
+I was fortunate that my motorcycle had a large "blank canvas" in the form of the panniers, so I was able to play with the design of the LED strips and form them into arrows pointing to either side of the motorcycle.  I am aware that many motorcycles will not allow such luxuries, so you will need to adapt the strip design to your needs.  It is possible to cut the strips to any number of pixels in length, but it is important to ensure that any joints are weatherproofed with shrink tubing.  Finally, solder wire leads to the input and output pins of the step-down power converter.  It is best to be able to physically disconnect the power supply from all other devices, so use some kind of in-line connector.  This will serve to isolate all devices from power during calibration and allows easier retrofits or modifications to the system.
 
 Following, you can see the process of preparing a strip for connections, tinning the contacts, attaching wire leads, and weatherproofing with shrink tube.
 
