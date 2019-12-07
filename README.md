@@ -93,7 +93,7 @@ If the initial test is successful, you may alter the threshold of the accelerome
 
 Below is the final install on the motorcycle and the system in action.
 <p float="center">
-  <img src="img/activate.jpg" width="425" title="Final Install!"/>
+  <img src="img/motorcycle.jpg" width="425" title="Final Install"/>
   <img src="img/livedemo.png" width="425" title="Live Demo"/> 
 </p>
 
