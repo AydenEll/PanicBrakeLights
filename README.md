@@ -78,11 +78,7 @@ Once the hardware is assembled, perform the following preparatory operations to 
 * Install the code listed in /src to the Arduino-based microcontroller
 * Set LEDL_COUNT and LEDR_COUNT to the number of left and right LEDs, respectively
 
-Once the above preparatory operations are complete and the step-down power converter output has been calibrated to 5V:
-
-* Double-check all wiring and then supply power to the strips and Arduino.  The device can be tested by shaking it (will impart enough negative acceleration to trigger strobing functionality).
-
-![](img/demostationary.jpg "Demo install to confirm functionality before finishing touches.")
+Once the above preparatory operations are complete and the step-down power converter output has been calibrated to 5V, double-check all wiring and then supply power to the strips and Arduino.  The device can be tested by shaking it (will impart enough negative acceleration to trigger strobing functionality).
 
 If the initial test is successful, you may alter the threshold of the accelerometer to better suit your needs (supplied threshold is a medium value).  Use the provided thresholding helper functions to save accelerometer data to the built-in EEPROM and then retrieve it via the serial console.  See the following for the general process:
 
